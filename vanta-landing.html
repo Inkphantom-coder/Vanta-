@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VANTA — Wear The Dark</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #060606;
+    --offblack: #0E0E0E;
+    --charcoal: #1A1A1A;
+    --red: #D92B2B;
+    --red-dim: rgba(217,43,43,0.15);
+    --white: #F0EDE8;
+    --grey: #888;
+    --lightgrey: #2A2A2A;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.5rem 3rem;
+    mix-blend-mode: difference;
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.25em;
+    color: var(--white);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .nav-links a:hover { opacity: 1; }
+
+  /* ── HERO ── */
+  .hero {
+    height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 3rem 4rem;
+    position: relative;
+    overflow: hidden;
+    background: var(--black);
+  }
+
+  .hero-bg-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(12rem, 28vw, 26rem);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240,237,232,0.04);
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: 0.05em;
+    user-select: none;
+  }
+
+  .hero-number {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: var(--red);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 18vw, 16rem);
+    line-height: 0.88;
+    letter-spacing: 0.03em;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-title .line1 { display: block; }
+  .hero-title .line2 {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--white);
+  }
+
+  .hero-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 2rem;
+    position: relative; z-index: 1;
+  }
+
+  .hero-tagline {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.6rem);
+    color: rgba(240,237,232,0.5);
+    max-width: 320px;
+    line-height: 1.5;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--red);
+    color: var(--white);
+    text-decoration: none;
+    padding: 1rem 2.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: background 0.2s, transform 0.15s;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+
+  .hero-cta:hover { background: #B82222; transform: translateY(-3px); }
+
+  .hero-scroll-line {
+    position: absolute;
+    right: 3rem; bottom: 0;
+    width: 1px; height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--red));
+    animation: growLine 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes growLine {
+    from { height: 40px; opacity: 0.4; }
+    to { height: 100px; opacity: 1; }
+  }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    background: var(--red);
+    overflow: hidden;
+    padding: 0.9rem 0;
+    white-space: nowrap;
+  }
+
+  .marquee-track {
+    display: inline-flex;
+    animation: marquee 18s linear infinite;
+  }
+
+  .marquee-track span {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    padding: 0 2rem;
+    color: var(--white);
+    opacity: 0.9;
+  }
+
+  .marquee-track span.dot {
+    color: rgba(240,237,232,0.4);
+    padding: 0;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── ABOUT ── */
+  .about {
+    padding: 8rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    background: var(--offblack);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about::before {
+    content: '01';
+    position: absolute;
+    top: 2rem; left: 3rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    color: var(--red);
+  }
+
+  .about-visual {
+    position: relative;
+  }
+
+  .about-box {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: var(--charcoal);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-box::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(135deg, rgba(217,43,43,0.2) 0%, transparent 50%),
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 30px,
+        rgba(240,237,232,0.015) 30px,
+        rgba(240,237,232,0.015) 31px
+      );
+  }
+
+  .about-box-label {
+    position: absolute;
+    bottom: 1.5rem; left: 1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: rgba(240,237,232,0.06);
+    letter-spacing: 0.1em;
+    line-height: 1;
+    z-index: 1;
+  }
+
+  .about-box-tag {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    border: 1px solid var(--red);
+    padding: 0.3rem 0.8rem;
+    z-index: 1;
+  }
+
+  .about-accent {
+    position: absolute;
+    bottom: -20px; right: -20px;
+    width: 120px; height: 120px;
+    border: 1px solid rgba(217,43,43,0.3);
+  }
+
+  .about-content {}
+
+  .section-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+
+  .section-eyebrow::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: rgba(217,43,43,0.3);
+    max-width: 60px;
+  }
+
+  .about-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    line-height: 0.9;
+    margin-bottom: 2rem;
+    letter-spacing: 0.03em;
+  }
+
+  .about-heading em {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--red);
+    font-size: 0.75em;
+  }
+
+  .about-text {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: rgba(240,237,232,0.55);
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+  }
+
+  .about-stats {
+    display: flex; gap: 2.5rem;
+  }
+
+  .stat {}
+  .stat-n {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    color: var(--red);
+    line-height: 1;
+  }
+  .stat-l {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--grey);
+    margin-top: 0.3rem;
+  }
+
+  /* ── COLLECTION ── */
+  .collection {
+    padding: 8rem 3rem;
+    background: var(--black);
+    position: relative;
+  }
+
+  .collection::before {
+    content: '02';
+    position: absolute;
+    top: 4rem; left: 3rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    color: var(--red);
+  }
+
+  .collection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 4rem;
+  }
+
+  .collection-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: 0.03em;
+  }
+
+  .collection-title span {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240,237,232,0.3);
+  }
+
+  .collection-desc {
+    max-width: 280px;
+    font-size: 0.82rem;
+    color: var(--grey);
+    line-height: 1.7;
+    text-align: right;
+  }
+
+  .drops-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .drop-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--charcoal);
+    cursor: pointer;
+  }
+
+  .drop-card:hover .drop-overlay { opacity: 1; }
+  .drop-card:hover .drop-img { transform: scale(1.05); }
+
+  .drop-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.5s ease;
+    position: relative;
+  }
+
+  .drop-card:first-child .drop-img { aspect-ratio: 3/5; }
+
+  .drop-bg-1 {
+    background:
+      radial-gradient(ellipse at 30% 60%, rgba(217,43,43,0.3) 0%, transparent 60%),
+      linear-gradient(160deg, #1A0A0A 0%, #0E0E0E 100%);
+  }
+  .drop-bg-2 {
+    background:
+      radial-gradient(ellipse at 70% 30%, rgba(240,237,232,0.06) 0%, transparent 60%),
+      linear-gradient(200deg, #141414 0%, #0A0A0A 100%);
+  }
+  .drop-bg-3 {
+    background:
+      radial-gradient(ellipse at 50% 80%, rgba(217,43,43,0.15) 0%, transparent 60%),
+      linear-gradient(20deg, #100808 0%, #0E0E0E 100%);
+  }
+
+  .drop-symbol {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 10vw, 9rem);
+    color: rgba(240,237,232,0.04);
+    letter-spacing: 0.05em;
+    user-select: none;
+  }
+
+  .drop-overlay {
+    position: absolute; inset: 0;
+    background: rgba(217,43,43,0.12);
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .drop-overlay-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.3em;
+    color: var(--white);
+    border: 1px solid rgba(240,237,232,0.5);
+    padding: 0.6rem 1.5rem;
+  }
+
+  .drop-info {
+    padding: 1.2rem;
+    border-top: 1px solid var(--lightgrey);
+  }
+
+  .drop-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.4rem;
+  }
+
+  .drop-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    color: var(--white);
+  }
+
+  .drop-price {
+    font-size: 0.78rem;
+    color: var(--grey);
+    margin-top: 0.3rem;
+  }
+
+  /* ── MANIFESTO ── */
+  .manifesto {
+    padding: 10rem 3rem;
+    background: var(--red);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .manifesto::before {
+    content: '03';
+    position: absolute;
+    top: 4rem; left: 3rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    color: rgba(240,237,232,0.4);
+  }
+
+  .manifesto-bg {
+    position: absolute; inset: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(8rem, 22vw, 20rem);
+    color: rgba(0,0,0,0.08);
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: 0.1em;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .manifesto-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(240,237,232,0.6);
+    margin-bottom: 2rem;
+  }
+
+  .manifesto-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 7vw, 6.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    position: relative; z-index: 1;
+    max-width: 900px;
+    margin: 0 auto 3rem;
+  }
+
+  .manifesto-sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    color: rgba(240,237,232,0.7);
+    position: relative; z-index: 1;
+    max-width: 500px;
+    margin: 0 auto 3rem;
+    line-height: 1.6;
+  }
+
+  .manifesto-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: var(--black);
+    color: var(--white);
+    text-decoration: none;
+    padding: 1rem 2.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    position: relative; z-index: 1;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .manifesto-btn:hover { background: #111; transform: translateY(-3px); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--offblack);
+    padding: 5rem 3rem 2rem;
+    border-top: 1px solid var(--lightgrey);
+  }
+
+  .footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4rem;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    letter-spacing: 0.15em;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .footer-logo span { color: var(--red); }
+
+  .footer-tagline {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--grey);
+    margin-top: 0.5rem;
+  }
+
+  .footer-links {
+    display: flex; gap: 4rem;
+  }
+
+  .footer-col h4 {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1.2rem;
+  }
+
+  .footer-col ul { list-style: none; }
+
+  .footer-col ul li {
+    font-size: 0.82rem;
+    color: var(--grey);
+    margin-bottom: 0.7rem;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .footer-col ul li:hover { color: var(--white); }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2rem;
+    border-top: 1px solid var(--lightgrey);
+  }
+
+  .footer-copy {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: rgba(136,136,136,0.4);
+    text-transform: uppercase;
+  }
+
+  .footer-credit {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: rgba(136,136,136,0.4);
+    text-transform: uppercase;
+  }
+
+  .footer-credit span { color: var(--red); }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 700px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 0 1.5rem 3rem; }
+    .about { grid-template-columns: 1fr; padding: 5rem 1.5rem; gap: 3rem; }
+    .about-visual { display: none; }
+    .collection { padding: 5rem 1.5rem; }
+    .drops-grid { grid-template-columns: 1fr; }
+    .collection-header { flex-direction: column; gap: 1.5rem; }
+    .collection-desc { text-align: left; }
+    .manifesto { padding: 6rem 1.5rem; }
+    footer { padding: 3rem 1.5rem 2rem; }
+    .footer-top { flex-direction: column; gap: 3rem; }
+    .footer-links { flex-direction: column; gap: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">VANTA</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#collection">Collection</a></li>
+    <li><a href="#manifesto">Manifesto</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-text">VANTA</div>
+  <div class="hero-number">SS · 2025 · 001</div>
+  <h1 class="hero-title">
+    <span class="line1">WEAR</span>
+    <span class="line2">THE DARK</span>
+  </h1>
+  <div class="hero-bottom">
+    <p class="hero-tagline">Luxury streetwear for those who move through the world differently.</p>
+    <a href="#collection" class="hero-cta">Explore Collection →</a>
+  </div>
+  <div class="hero-scroll-line"></div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>NEW DROP</span><span class="dot">·</span>
+    <span>VANTA SS25</span><span class="dot">·</span>
+    <span>WEAR THE DARK</span><span class="dot">·</span>
+    <span>LIMITED EDITION</span><span class="dot">·</span>
+    <span>HANDCRAFTED</span><span class="dot">·</span>
+    <span>NEW DROP</span><span class="dot">·</span>
+    <span>VANTA SS25</span><span class="dot">·</span>
+    <span>WEAR THE DARK</span><span class="dot">·</span>
+    <span>LIMITED EDITION</span><span class="dot">·</span>
+    <span>HANDCRAFTED</span><span class="dot">·</span>
+    <span>NEW DROP</span><span class="dot">·</span>
+    <span>VANTA SS25</span><span class="dot">·</span>
+    <span>WEAR THE DARK</span><span class="dot">·</span>
+    <span>LIMITED EDITION</span><span class="dot">·</span>
+    <span>HANDCRAFTED</span><span class="dot">·</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-visual reveal-left">
+    <div class="about-box">
+      <div class="about-box-tag">Est. 2020</div>
+      <div class="about-box-label">VANTA<br>BLACK</div>
+    </div>
+    <div class="about-accent"></div>
+  </div>
+  <div class="about-content reveal">
+    <div class="section-eyebrow">About The Brand</div>
+    <h2 class="about-heading">BORN IN<br>THE <em>shadows</em><br>OF FASHION</h2>
+    <p class="about-text">
+      VANTA doesn't follow trends. It sets the standard for those who refuse to be ordinary. Every piece is constructed with obsessive attention — from fabric sourcing to final stitch. We don't make clothes. We make armour.
+    </p>
+    <div class="about-stats">
+      <div class="stat">
+        <div class="stat-n">12</div>
+        <div class="stat-l">Drops Per Year</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">100%</div>
+        <div class="stat-l">Handcrafted</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">40+</div>
+        <div class="stat-l">Countries</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COLLECTION -->
+<section class="collection" id="collection">
+  <div class="collection-header reveal">
+    <div class="collection-title">
+      NEW<br>
+      <span>DROPS</span>
+    </div>
+    <p class="collection-desc">Each piece is produced in limited quantities. Once it's gone, it's gone. No restocks. No exceptions.</p>
+  </div>
+
+  <div class="drops-grid">
+    <div class="drop-card reveal">
+      <div class="drop-img drop-bg-1">
+        <div class="drop-symbol">V</div>
+        <div class="drop-overlay"><div class="drop-overlay-text">VIEW PIECE</div></div>
+      </div>
+      <div class="drop-info">
+        <div class="drop-tag">Drop 001 · Signature</div>
+        <div class="drop-name">VOID OVERSIZED JACKET</div>
+        <div class="drop-price">₦185,000 — Limited to 50 units</div>
+      </div>
+    </div>
+    <div class="drop-card reveal">
+      <div class="drop-img drop-bg-2">
+        <div class="drop-symbol">∅</div>
+        <div class="drop-overlay"><div class="drop-overlay-text">VIEW PIECE</div></div>
+      </div>
+      <div class="drop-info">
+        <div class="drop-tag">Drop 002 · Core</div>
+        <div class="drop-name">SHADOW CARGO PANT</div>
+        <div class="drop-price">₦92,000 — Limited to 80 units</div>
+      </div>
+    </div>
+    <div class="drop-card reveal">
+      <div class="drop-img drop-bg-3">
+        <div class="drop-symbol">▲</div>
+        <div class="drop-overlay"><div class="drop-overlay-text">VIEW PIECE</div></div>
+      </div>
+      <div class="drop-info">
+        <div class="drop-tag">Drop 003 · Accessory</div>
+        <div class="drop-name">EMBER CHAIN SET</div>
+        <div class="drop-price">₦38,000 — Limited to 120 units</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto" id="manifesto">
+  <div class="manifesto-bg">DARK</div>
+  <div class="manifesto-eyebrow">The Vanta Manifesto</div>
+  <h2 class="manifesto-text reveal">
+    DARKNESS ISN'T<br>THE ABSENCE OF LIGHT.<br>IT'S THE REFUSAL<br>TO BE ORDINARY.
+  </h2>
+  <p class="manifesto-sub reveal">
+    We make pieces for people who understand that standing out doesn't mean being loud. Sometimes the darkest thing in the room commands the most attention.
+  </p>
+  <a href="#collection" class="manifesto-btn reveal">Shop The Collection →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">VAN<span>TA</span></div>
+      <div class="footer-tagline">Wear the dark.</div>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <ul>
+          <li>New Drops</li>
+          <li>Jackets</li>
+          <li>Bottoms</li>
+          <li>Accessories</li>
+          <li>Archive</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Brand</h4>
+        <ul>
+          <li>About</li>
+          <li>Manifesto</li>
+          <li>Stockists</li>
+          <li>Press</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li>hello@vanta.co</li>
+          <li>Instagram</li>
+          <li>Twitter / X</li>
+          <li>Sizing Guide</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© VANTA 2025 — All rights reserved</div>
+    <div class="footer-credit">Built by <span>A.M. Elizabeth</span></div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal, .reveal-left');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
